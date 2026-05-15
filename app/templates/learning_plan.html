@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}70 天路线 - AI 学习平台{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">路线</p>
+    <h1>70 天学习路线</h1>
+  </div>
+  <a class="button ghost" href="/">回到仪表盘</a>
+</section>
+
+<section class="route-summary">
+  <div>
+    <span>路线结构</span>
+    <strong>理论基础 → 进阶理解 → 实战产物</strong>
+  </div>
+  <div>
+    <span>打卡方式</span>
+    <strong>每一天都有资源、步骤、练习和验收</strong>
+  </div>
+</section>
+
+<section class="route-board">
+  {% for day in days %}
+    {% if loop.first or day.module_id != days[loop.index0 - 1].module_id %}
+      <div class="route-group">
+        <span>{{ day.module.name }}</span>
+      </div>
+    {% endif %}
+    <a class="route-row route-theme-{{ loop.index0 % 5 }} status-{{ day.status }}" href="/days/{{ day.day_number }}">
+      <span class="day-pill">D{{ "%02d"|format(day.day_number) }}</span>
+      <span class="route-main">
+        <strong>{{ day.topic }}</strong>
+        <small>{{ day.learning_goal }}</small>
+      </span>
+      <span class="route-stage">{{ day.stage }}</span>
+      <span class="status-chip">{{ day.status }}</span>
+    </a>
+  {% endfor %}
+</section>
+{% endblock %}

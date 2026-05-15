@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ module.name }} - AI 学习平台{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">模块</p>
+    <h1>{{ module.name }}</h1>
+  </div>
+  <a class="button ghost" href="/plan">回到路线</a>
+</section>
+
+<section class="route-summary">
+  <div>
+    <span>模块学习法</span>
+    <strong>先理解概念，再完成可运行的小产物</strong>
+  </div>
+  <div>
+    <span>完成判断</span>
+    <strong>状态改为已完成，练习记录可追溯</strong>
+  </div>
+</section>
+
+<section class="route-board">
+  {% for day in days %}
+    <a class="route-row route-theme-{{ loop.index0 % 5 }} status-{{ day.status }}" href="/days/{{ day.day_number }}">
+      <span class="day-pill">D{{ "%02d"|format(day.day_number) }}</span>
+      <span class="route-main">
+        <strong>{{ day.topic }}</strong>
+        <small>{{ day.learning_goal }}</small>
+      </span>
+      <span class="route-stage">{{ day.stage }}</span>
+      <span class="status-chip">{{ day.status }}</span>
+    </a>
+  {% endfor %}
+</section>
+{% endblock %}

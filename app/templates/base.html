@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}AI 学习平台{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/htmx.org@2.0.3"></script>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="ambient-bg" aria-hidden="true">
+      <span class="ambient-grid"></span>
+      <span class="ambient-glow"></span>
+      <span class="ambient-line"></span>
+    </div>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+    <aside class="sidebar" aria-label="主导航">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32">
+            <path d="M8 17.5 15.8 6l8.2 20H11.5l3.4-8.5h6.4" />
+          </svg>
+        </span>
+        <span>
+          <strong>AI 学习驾驶舱</strong>
+          <small>70 天本地训练计划</small>
+        </span>
+      </a>
+      <nav class="nav">
+        <a href="/">仪表盘</a>
+        <a href="/plan">学习路线</a>
+        <a href="/resources">资源库</a>
+        <a href="/settings">设置</a>
+      </nav>
+      <div class="sidebar-note">
+        <span>本地 SQLite 保存进度</span>
+        <strong>每天只推进一个可验收产物</strong>
+      </div>
+    </aside>
+    <main class="main" id="main">
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>

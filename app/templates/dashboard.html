@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}仪表盘 - AI 学习平台{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">学习工作台</p>
+    <h1>今天把 AI 应用能力往前推一格</h1>
+  </div>
+  <a class="button primary" href="/plan">查看 70 天路线</a>
+</section>
+
+<section class="dashboard-layout">
+  <article class="today-panel">
+    <div class="hero-topline">
+      <div class="panel-label">
+        <span>今日优先</span>
+      </div>
+      <div class="orbital-progress" style="--progress: {{ summary.progress_percent }}%;" aria-label="总进度 {{ summary.progress_percent }}%">
+        <small>总进度</small>
+        <span>{{ summary.progress_percent }}%</span>
+        <i aria-hidden="true"></i>
+      </div>
+    </div>
+    {% if next_day %}
+      <h2>第 {{ next_day.day_number }} 天：{{ next_day.topic }}</h2>
+      <p>{{ next_day.learning_goal }}</p>
+      <div class="glass-scan" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="today-meta">
+        <div>
+          <span>所属模块</span>
+          <strong>{{ next_day.module.name }}</strong>
+        </div>
+        <div>
+          <span>阶段</span>
+          <strong>{{ next_day.stage }}</strong>
+        </div>
+      </div>
+      <div class="action-row">
+        <a class="button primary" href="/days/{{ next_day.day_number }}">开始学习</a>
+        <a class="button secondary" href="/days/{{ next_day.day_number }}/exercise">提交练习</a>
+        <a class="button ghost" href="/days/{{ next_day.day_number }}/quiz">随堂小测</a>
+      </div>
+    {% else %}
+      <h2>70 天已完成</h2>
+      <p>可以开始整理作品集、补全错题和复盘项目经历。</p>
+    {% endif %}
+  </article>
+
+  <aside class="scoreboard">
+    <div class="metric">
+      <span>完成天数</span>
+      <strong>{{ summary.completed_days }}</strong>
+      <small>/ {{ summary.total_days }} 天</small>
+    </div>
+    <div class="metric">
+      <span>进行中</span>
+      <strong>{{ summary.learning_days }}</strong>
+      <small>正在推进</small>
+    </div>
+    <div class="metric">
+      <span>待复盘</span>
+      <strong>{{ summary.review_days }}</strong>
+      <small>需要回看</small>
+    </div>
+    <div class="metric">
+      <span>小测记录</span>
+      <strong>{{ summary.quiz_count }}</strong>
+      <small>{% if summary.average_quiz_score is not none %}均分 {{ summary.average_quiz_score }}%{% else %}尚未开始{% endif %}</small>
+    </div>
+  </aside>
+</section>
+
+<section class="focus-strip">
+  <div>
+    <span>学习节奏</span>
+    <strong>每天 1 个主题</strong>
+  </div>
+  <div>
+    <span>实践规则</span>
+    <strong>先跑通，再优化</strong>
+  </div>
+  <div>
+    <span>复盘标准</span>
+    <strong>能解释、能复现、能改造</strong>
+  </div>
+</section>
+
+<section class="two-column">
+  <section class="surface">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">模块进度</p>
+        <h2>按能力路径推进</h2>
+      </div>
+    </div>
+    <div class="module-table">
+      {% for row in module_progress %}
+        <a class="module-row module-theme-{{ loop.index0 % 3 }}" href="/modules/{{ row.module.id }}">
+          <span class="module-icon" aria-hidden="true"></span>
+          <span class="module-title">{{ row.module.name }}</span>
+          <span class="module-days">{{ row.done }} / {{ row.total }} 天</span>
+          <span class="bar"><i style="width: {{ row.percent }}%"></i></span>
+          <strong>{{ row.percent }}%</strong>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <aside class="surface">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">复盘队列</p>
+        <h2>先清掉卡点</h2>
+      </div>
+    </div>
+    {% if review_days %}
+      <div class="review-list">
+        {% for day in review_days %}
+          <a href="/days/{{ day.day_number }}">第 {{ day.day_number }} 天 · {{ day.topic }}</a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="empty-state">暂时没有需要复盘的学习日。</p>
+    {% endif %}
+  </aside>
+</section>
+{% endblock %}

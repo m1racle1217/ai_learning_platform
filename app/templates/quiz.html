@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}第 {{ day.day_number }} 天小测 - AI 学习平台{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">随堂小测</p>
+    <h1>第 {{ day.day_number }} 天：{{ day.topic }}</h1>
+  </div>
+  <a class="button ghost" href="/days/{{ day.day_number }}">回到当天学习</a>
+</section>
+
+<section class="surface">
+  {% if questions %}
+    <form method="post" action="/days/{{ day.day_number }}/quiz" class="form-stack">
+      {% for question in questions %}
+        <fieldset class="question">
+          <legend>{{ loop.index }}. {{ question.prompt }}</legend>
+          {% for option in question.options %}
+            <label class="option">
+              {% if question.question_type == "multiple" %}
+                <input type="checkbox" name="{{ question.id }}" value="{{ option }}" />
+              {% else %}
+                <input type="radio" name="{{ question.id }}" value="{{ option }}" />
+              {% endif %}
+              <span>{{ option }}</span>
+            </label>
+          {% endfor %}
+        </fieldset>
+      {% endfor %}
+      <button class="button primary" type="submit">提交小测</button>
+    </form>
+  {% else %}
+    <p class="empty-state">这个模块暂时没有题目。可以先完成练习，后续再补题库。</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}第 {{ day.day_number }} 天 - AI 学习平台{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">{{ day.module.name }}</p>
+    <h1>第 {{ day.day_number }} 天：{{ day.topic }}</h1>
+  </div>
+  <form class="status-form" method="post" action="/days/{{ day.day_number }}/status">
+    <label for="status">学习状态</label>
+    <select id="status" name="status">
+      {% for status in ["未开始", "学习中", "已完成", "需要复盘"] %}
+        <option value="{{ status }}" {% if day.status == status %}selected{% endif %}>{{ status }}</option>
+      {% endfor %}
+    </select>
+    <button class="button primary" type="submit">保存</button>
+  </form>
+</section>
+
+<section class="lesson-layout">
+  <article class="surface lesson-goal">
+    <div class="lesson-number" aria-hidden="true">D{{ "%02d"|format(day.day_number) }}</div>
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">{{ day.stage }}</p>
+        <h2>今日目标</h2>
+      </div>
+      {% set status_percent = {"未开始": 0, "学习中": 45, "需要复盘": 70, "已完成": 100}.get(day.status, 0) %}
+      <div class="status-progress status-{{ day.status }}" style="--status-progress: {{ status_percent }}%;">
+        <span>{{ day.status }}</span>
+        <strong>{{ status_percent }}%</strong>
+        <i aria-hidden="true"></i>
+      </div>
+    </div>
+    <p class="lead">{{ day.learning_goal }}</p>
+    <div class="fact-grid">
+      <div>
+        <span>用到再搭的环境</span>
+        <strong>{{ day.environment }}</strong>
+      </div>
+      <div>
+        <span>当天输出物</span>
+        <strong>{{ day.output_artifact }}</strong>
+      </div>
+    </div>
+    <div class="learning-flow" aria-label="学习流程">
+      <span>看资源</span>
+      <i></i>
+      <span>跑步骤</span>
+      <i></i>
+      <span>交练习</span>
+      <i></i>
+      <span>做小测</span>
+    </div>
+  </article>
+
+  <article class="surface">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">操作步骤</p>
+        <h2>按顺序实践</h2>
+      </div>
+    </div>
+    <pre class="rich-text">{{ day.practice_steps }}</pre>
+  </article>
+
+  <article class="surface">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">高价值资源</p>
+        <h2>直接跳转学习</h2>
+      </div>
+      <span class="resource-progress" data-resource-progress>{{ resource_done }} / {{ resource_total }} · {{ resource_percent }}%</span>
+    </div>
+    <div class="resource-list">
+      {% for resource in resources %}
+        <label class="resource-check-card {% if resource.id in completed_resource_ids %}is-done{% endif %}">
+          <input
+            type="checkbox"
+            data-resource-check
+            data-resource-id="{{ resource.id }}"
+            {% if resource.id in completed_resource_ids %}checked{% endif %}
+          />
+          <span class="check-visual" aria-hidden="true"></span>
+          <a href="{{ resource.url }}" target="_blank" rel="noreferrer">
+            <span>{{ resource.resource_type }}</span>
+            <strong>{{ resource.title }}</strong>
+          </a>
+        </label>
+      {% else %}
+        <p class="empty-state">这一天还没有单独资源，可先看模块资源。</p>
+      {% endfor %}
+    </div>
+  </article>
+
+  <aside class="surface lesson-check">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">验收</p>
+        <h2>做到这些再打卡</h2>
+      </div>
+    </div>
+    <h3>验收标准</h3>
+    <p>{{ day.acceptance_criteria }}</p>
+    <h3>卡住时怎么做</h3>
+    <pre class="rich-text">{{ day.guidance }}</pre>
+    <div class="action-column">
+      <a class="button primary" href="/days/{{ day.day_number }}/exercise">提交练习</a>
+      <a class="button secondary" href="/days/{{ day.day_number }}/quiz">随堂小测</a>
+      <a class="button ghost" href="/plan">返回路线</a>
+    </div>
+  </aside>
+</section>
+<script>
+  const progressLabel = document.querySelector("[data-resource-progress]");
+  const resourceChecks = Array.from(document.querySelectorAll("[data-resource-check]"));
+
+  function updateResourceProgressLabel() {
+    if (!progressLabel) return;
+    const done = resourceChecks.filter((item) => item.checked).length;
+    const total = resourceChecks.length;
+    const percent = total ? Math.round((done / total) * 100) : 0;
+    progressLabel.textContent = `${done} / ${total} · ${percent}%`;
+  }
+
+  resourceChecks.forEach((checkbox) => {
+    checkbox.addEventListener("change", async () => {
+      checkbox.closest(".resource-check-card")?.classList.toggle("is-done", checkbox.checked);
+      updateResourceProgressLabel();
+      const formData = new FormData();
+      formData.append("completed", checkbox.checked ? "1" : "0");
+      await fetch(`/resources/${checkbox.dataset.resourceId}/progress`, {
+        method: "POST",
+        body: formData,
+      });
+    });
+  });
+</script>
+{% endblock %}

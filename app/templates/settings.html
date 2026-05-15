@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}设置 - AI 学习平台{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">本地设置</p>
+    <h1>数据与启动</h1>
+    <p class="head-subtitle">所有进度、练习、小测和资源勾选都保存在本地 SQLite。</p>
+  </div>
+  <a class="button ghost" href="/">回到仪表盘</a>
+</section>
+
+<section class="two-column">
+  <section class="surface danger-zone">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">清空进度</p>
+        <h2>重置用户数据</h2>
+      </div>
+    </div>
+    <p>会清空资源勾选、练习提交、小测记录，并把 70 天状态恢复为未开始。学习路线、资源库和题库会保留。</p>
+    <form method="post" action="/settings/clear-progress" onsubmit="return confirm('确定要清空所有学习进度吗？这个操作不可撤销。');">
+      <button class="button danger" type="submit">清空进度</button>
+    </form>
+  </section>
+
+  <aside class="surface">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">行为记录</p>
+        <h2>最近 30 条</h2>
+      </div>
+    </div>
+    <div class="event-list">
+      {% for event in events %}
+        <article>
+          <strong>{{ event.event_type }}</strong>
+          <span>{{ event.created_at }}</span>
+          <small>{{ event.target_type or "system" }}{% if event.target_id %} · {{ event.target_id }}{% endif %}</small>
+        </article>
+      {% else %}
+        <p class="empty-state">还没有行为记录。</p>
+      {% endfor %}
+    </div>
+  </aside>
+</section>
+{% endblock %}

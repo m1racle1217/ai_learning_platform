@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}第 {{ day.day_number }} 天练习 - AI 学习平台{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">练习提交</p>
+    <h1>第 {{ day.day_number }} 天：提交练习</h1>
+    <p class="head-subtitle">{{ day.topic }}</p>
+  </div>
+  <a class="button ghost" href="/days/{{ day.day_number }}">回到当天学习</a>
+</section>
+
+<section class="two-column">
+  <section>
+    <article class="surface">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">验收标准</p>
+          <h2>先对齐完成定义</h2>
+        </div>
+      </div>
+      <p>{{ day.acceptance_criteria }}</p>
+      <div class="fact-grid single">
+        <div>
+          <span>预期输出物</span>
+          <strong>{{ day.output_artifact }}</strong>
+        </div>
+      </div>
+      <section class="guidance-steps">
+        <button class="guidance-toggle" type="button" aria-expanded="false" aria-controls="guidance-manual">
+          <span>练习指导</span>
+          <strong>展开查看新手详细操作手册</strong>
+        </button>
+        <div class="guidance-manual" id="guidance-manual" hidden>
+          {% for section in guidance_sections %}
+            <section class="manual-section">
+              <h3>{{ section.title }}</h3>
+              <p>{{ section.intro }}</p>
+              <ol>
+                {% for step in section.steps %}
+                  <li>
+                    <span>{{ step.title }}</span>
+                    <p>{{ step.body }}</p>
+                    {% if step.commands %}
+                      <div class="command-stack" aria-label="可复制命令">
+                        {% for command in step.commands %}
+                          <code>{{ command }}</code>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                    {% if step.verify %}
+                      <p class="verify-line">验证：{{ step.verify }}</p>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ol>
+            </section>
+          {% endfor %}
+        </div>
+      </section>
+    </article>
+
+    <article class="surface">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">自动检查</p>
+          <h2>提交你的完成说明</h2>
+        </div>
+      </div>
+      <form method="post" action="/days/{{ day.day_number }}/exercise" class="form-stack">
+        <label>
+          完成说明
+          <textarea name="answer_text" rows="8" required placeholder="写下你完成了什么、输出物在哪里、遇到什么问题、如何验证。"></textarea>
+        </label>
+        <label>
+          输出物路径
+          <input name="output_path" placeholder="例如 D:\学习资料\ai_learning_platform\README.md 或 notes/prompt_patterns.md" />
+        </label>
+        <p class="form-hint">自动检查会验证路径是否存在，并按当天输出物做基础判断；不会执行任意用户输入命令。</p>
+        <button class="button primary" type="submit">提交并自动检查</button>
+      </form>
+    </article>
+  </section>
+
+  <aside class="surface">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">记录</p>
+        <h2>提交历史</h2>
+      </div>
+    </div>
+    {% for item in submissions %}
+      <article class="submission">
+        <strong>{{ item.auto_status }}</strong>
+        <p>{{ item.auto_feedback }}</p>
+        <small>{{ item.created_at }}</small>
+        <pre class="rich-text">{{ item.answer_text }}</pre>
+      </article>
+    {% else %}
+      <p class="empty-state">还没有提交记录。</p>
+    {% endfor %}
+  </aside>
+</section>
+<script>
+  const guidanceToggle = document.querySelector(".guidance-toggle");
+  const guidanceManual = document.querySelector("#guidance-manual");
+  if (guidanceToggle && guidanceManual) {
+    guidanceToggle.addEventListener("click", () => {
+      const isOpen = guidanceToggle.getAttribute("aria-expanded") === "true";
+      guidanceToggle.setAttribute("aria-expanded", String(!isOpen));
+      guidanceManual.hidden = isOpen;
+      guidanceToggle.querySelector("strong").textContent = isOpen ? "展开查看新手详细操作手册" : "收起新手详细操作手册";
+    });
+  }
+</script>
+{% endblock %}

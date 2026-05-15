@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}资源库 - AI 学习平台{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">资源库</p>
+    <h1>视频、文档、GitHub 和工具资源</h1>
+  </div>
+  <a class="button ghost" href="/">回到仪表盘</a>
+</section>
+
+<section class="surface">
+  <div class="resource-tabs" aria-label="资源分类">
+    <button class="tab is-active" type="button" data-filter="all">全部</button>
+    <button class="tab" type="button" data-filter="video">视频</button>
+    <button class="tab" type="button" data-filter="doc">文档</button>
+    <button class="tab" type="button" data-filter="github">GitHub</button>
+    <button class="tab" type="button" data-filter="tool">工具</button>
+  </div>
+  <div class="resource-list dense">
+    {% for resource in resources %}
+      <a href="{{ resource.url }}" target="_blank" rel="noreferrer" data-type="{{ resource.resource_type }}">
+        <span>{{ resource.resource_type }}</span>
+        <strong>{{ resource.title }}</strong>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll(".resource-tabs .tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const filter = tab.dataset.filter;
+      document.querySelectorAll(".resource-tabs .tab").forEach((item) => {
+        item.classList.toggle("is-active", item === tab);
+      });
+      document.querySelectorAll(".resource-list [data-type]").forEach((item) => {
+        const type = item.dataset.type.toLowerCase();
+        item.hidden = filter !== "all" && type !== filter;
+      });
+    });
+  });
+</script>
+{% endblock %}

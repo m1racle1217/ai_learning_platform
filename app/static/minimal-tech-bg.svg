@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1200" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <radialGradient id="g1" cx="46%" cy="12%" r="62%">
+      <stop offset="0" stop-color="#14352d" stop-opacity=".70"/>
+      <stop offset=".38" stop-color="#10253a" stop-opacity=".32"/>
+      <stop offset="1" stop-color="#06070a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#72e3c4" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#72e3c4" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#6aa8ff" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+      <path d="M80 0H0v80" fill="none" stroke="#ffffff" stroke-opacity=".045" stroke-width="1"/>
+    </pattern>
+    <filter id="blur">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
+  </defs>
+  <rect width="1800" height="1200" fill="#06070a"/>
+  <rect width="1800" height="1200" fill="url(#grid)"/>
+  <circle cx="830" cy="40" r="650" fill="url(#g1)" filter="url(#blur)"/>
+  <path d="M-120 560 C 340 430, 640 460, 1010 330 S 1560 220, 1930 80" fill="none" stroke="url(#beam)" stroke-width="2"/>
+  <path d="M-80 710 C 360 580, 760 620, 1110 500 S 1520 420, 1900 300" fill="none" stroke="#6aa8ff" stroke-opacity=".08" stroke-width="1"/>
+  <path d="M1170 -80 L1510 1200" stroke="#72e3c4" stroke-opacity=".045" stroke-width="180" filter="url(#blur)"/>
+</svg>

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}小测结果 - AI 学习平台{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">小测结果</p>
+    <h1>得分：{{ result.score }} / {{ result.total }}{% if result.total %} · {{ ((result.score / result.total) * 100) | round(1) }}%{% endif %}</h1>
+  </div>
+  <a class="button ghost" href="/days/{{ day.day_number }}">回到当天学习</a>
+</section>
+
+<section class="surface">
+  {% for item in feedback %}
+    <article class="submission">
+      <strong>{% if item.correct %}正确{% else %}需要复习{% endif %}</strong>
+      <p>你的答案：{{ item.actual | join(", ") }}</p>
+      <p>正确答案：{{ item.expected | join(", ") }}</p>
+      <p>{{ item.explanation }}</p>
+    </article>
+  {% endfor %}
+</section>
+{% endblock %}
