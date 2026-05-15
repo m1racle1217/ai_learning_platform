@@ -22,7 +22,7 @@ if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
   echo "cd \"$(pwd)\""
   echo "python3 --version"
   echo "python3 -m pip install --upgrade pip"
-  echo "python3 -m pip install -e \".[dev]\""
+  echo "python3 -m pip install fastapi \"uvicorn[standard]\" jinja2 python-multipart sqlalchemy python-dotenv openpyxl httpx pytest ruff"
   echo "./start_mac.command"
   echo
   read -r -p "按回车关闭窗口..."
@@ -39,7 +39,7 @@ if [ $? -ne 0 ]; then
   : > "$LOG_FILE"
   "$PYTHON_BIN" -m pip install --upgrade pip 2>&1 | tee -a "$LOG_FILE"
   PIP_UPGRADE_STATUS=${PIPESTATUS[0]}
-  "$PYTHON_BIN" -m pip install -e ".[dev]" 2>&1 | tee -a "$LOG_FILE"
+  "$PYTHON_BIN" -m pip install fastapi "uvicorn[standard]" jinja2 python-multipart sqlalchemy python-dotenv openpyxl httpx pytest ruff 2>&1 | tee -a "$LOG_FILE"
   PIP_INSTALL_STATUS=${PIPESTATUS[0]}
   if [ "$PIP_UPGRADE_STATUS" -ne 0 ] || [ "$PIP_INSTALL_STATUS" -ne 0 ]; then
     echo
@@ -55,12 +55,12 @@ if [ $? -ne 0 ]; then
       echo
       echo "如果暂时只想绕过证书问题，也可以手动执行："
       echo "python3 -m pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org --upgrade pip"
-      echo "python3 -m pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -e \".[dev]\""
+      echo "python3 -m pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org fastapi \"uvicorn[standard]\" jinja2 python-multipart sqlalchemy python-dotenv openpyxl httpx pytest ruff"
       echo
     fi
     echo "cd \"$(pwd)\""
     echo "python3 -m pip install --upgrade pip"
-    echo "python3 -m pip install -e \".[dev]\""
+    echo "python3 -m pip install fastapi \"uvicorn[standard]\" jinja2 python-multipart sqlalchemy python-dotenv openpyxl httpx pytest ruff"
     echo
     read -r -p "按回车关闭窗口..."
     exit 1

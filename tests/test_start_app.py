@@ -32,7 +32,8 @@ def test_mac_launcher_keeps_diagnostics_visible():
     assert "python.org/downloads/macos" in launcher
     assert "brew install python@3.11" in launcher
     assert "python3 -m pip install --upgrade pip" in launcher
-    assert 'pip install -e ".[dev]"' in launcher.replace('\\"', '"')
+    assert "pip install fastapi" in launcher
+    assert '"uvicorn[standard]"' in launcher
     assert "import fastapi, uvicorn, sqlalchemy, openpyxl" in launcher
     assert "CERTIFICATE_VERIFY_FAILED" in launcher
     assert "Install Certificates.command" in launcher
