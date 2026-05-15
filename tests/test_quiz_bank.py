@@ -148,3 +148,103 @@ def test_later_day_quiz_is_domain_specific_and_professional():
     for keyword in ["场景", "检索", "评估", "排查", "交付", "风险"]:
         assert keyword in text
     assert "只收藏视频" not in text
+
+
+def test_mcp_quiz_targets_protocol_architecture_and_product_judgment():
+    module = Module(id=4, name="4. MCP", sort_order=4, description="")
+    day = LearningDay(
+        id=15,
+        day_number=15,
+        module_id=module.id,
+        module=module,
+        stage="理论基础篇",
+        topic="MCP SDK 搭建",
+        environment="MCP Python SDK；今天第一次搭",
+        learning_goal="把本地工具标准化为 MCP server",
+        resources_text="",
+        resource_hint="",
+        practice_steps="安装 MCP Python SDK，跑通 hello MCP server，记录客户端发现工具流程",
+        acceptance_criteria="hello MCP server 能启动",
+        output_artifact="demos/06_mcp_hello.py",
+        status="未开始",
+        guidance="SDK 版本、启动命令、客户端配置、工具名称是否暴露、日志。",
+    )
+
+    questions = build_day_quiz(day, [])
+    text = "\n".join(
+        question["prompt"] + "\n" + "\n".join(question["options"]) + "\n" + question["explanation"]
+        for question in questions
+    )
+
+    assert len(questions) >= 8
+    for keyword in [
+        "MCP server",
+        "tool schema",
+        "工具发现",
+        "client",
+        "transport",
+        "stdio",
+        "安全边界",
+        "allowlist",
+        "架构",
+        "产品",
+        "验收",
+    ]:
+        assert keyword in text
+    assert "最应该先确认什么" not in text
+
+
+def test_mcp_file_quiz_targets_allowlist_and_error_handling():
+    module = Module(id=4, name="4. MCP", sort_order=4, description="")
+    day = LearningDay(
+        id=16,
+        day_number=16,
+        module_id=module.id,
+        module=module,
+        stage="进阶篇",
+        topic="文件 MCP 工具",
+        environment="MCP SDK、data/",
+        learning_goal="把 read_file 改成 MCP tool",
+        resources_text="",
+        resource_hint="",
+        practice_steps="复用 read_file，改造成 MCP tool，补 schema 和错误处理",
+        acceptance_criteria="MCP tool 能被发现和调用",
+        output_artifact="demos/07_file_mcp_server.py",
+        status="未开始",
+        guidance="SDK 版本、启动命令、客户端配置、工具名称是否暴露。",
+    )
+
+    questions = build_day_quiz(day, [])
+    text = "\n".join(question["prompt"] + "\n" + question["explanation"] for question in questions)
+
+    for keyword in ["read_file", "allowlist", "resolve", "越权", "tool schema", "错误返回", "产品"]:
+        assert keyword in text
+    assert "hello server 原样复制" in "\n".join(option for q in questions for option in q["options"])
+
+
+def test_mcp_orchestration_quiz_targets_traceability_and_tool_choice():
+    module = Module(id=4, name="4. MCP", sort_order=4, description="")
+    day = LearningDay(
+        id=17,
+        day_number=17,
+        module_id=module.id,
+        module=module,
+        stage="实战篇",
+        topic="多工具编排",
+        environment="File/SQL/MCP；不需要 LangGraph",
+        learning_goal="让 agent 在多个工具间选择",
+        resources_text="",
+        resource_hint="",
+        practice_steps="准备 file、sql 两个工具，记录每次工具调用日志",
+        acceptance_criteria="多工具任务可复现、可观察",
+        output_artifact="demos/08_tool_orchestration.py",
+        status="未开始",
+        guidance="schema 是否太宽、工具是否有副作用、错误是否可见。",
+    )
+
+    questions = build_day_quiz(day, [])
+    text = "\n".join(question["prompt"] + "\n" + question["explanation"] for question in questions)
+
+    for keyword in ["多工具", "trace_id", "tool_name", "arguments", "失败", "产品", "架构", "可复现"]:
+        assert keyword in text
+    assert "最终答案看起来像真的即可" in "\n".join(option for q in questions for option in q["options"])
