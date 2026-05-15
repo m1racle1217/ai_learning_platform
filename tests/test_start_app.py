@@ -27,12 +27,17 @@ def test_mac_launcher_keeps_diagnostics_visible():
     launcher = Path("start_mac.command").read_text(encoding="utf-8")
 
     assert "set -u" in launcher
+    assert "set -o pipefail" in launcher
     assert "AI Learning Platform" in launcher
     assert "python.org/downloads/macos" in launcher
     assert "brew install python@3.11" in launcher
     assert "python3 -m pip install --upgrade pip" in launcher
     assert 'pip install -e ".[dev]"' in launcher.replace('\\"', '"')
     assert "import fastapi, uvicorn, sqlalchemy, openpyxl" in launcher
+    assert "CERTIFICATE_VERIFY_FAILED" in launcher
+    assert "Install Certificates.command" in launcher
+    assert "--trusted-host pypi.org" in launcher
+    assert "tee -a" in launcher
     assert "tail -n" in launcher
     assert "nohup" not in launcher
     assert "read -r" in launcher

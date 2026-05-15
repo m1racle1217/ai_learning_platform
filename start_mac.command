@@ -1,5 +1,6 @@
 #!/bin/bash
 set -u
+set -o pipefail
 cd "$(dirname "$0")" || exit 1
 
 LOG_FILE="/tmp/ai_learning_platform.log"
@@ -35,11 +36,28 @@ if [ $? -ne 0 ]; then
   echo "检测到 Python 已安装，但项目依赖还没安装。正在自动安装依赖..."
   echo "这一步第一次运行可能需要几分钟。"
   echo
-  "$PYTHON_BIN" -m pip install --upgrade pip
-  "$PYTHON_BIN" -m pip install -e ".[dev]"
-  if [ $? -ne 0 ]; then
+  : > "$LOG_FILE"
+  "$PYTHON_BIN" -m pip install --upgrade pip 2>&1 | tee -a "$LOG_FILE"
+  PIP_UPGRADE_STATUS=${PIPESTATUS[0]}
+  "$PYTHON_BIN" -m pip install -e ".[dev]" 2>&1 | tee -a "$LOG_FILE"
+  PIP_INSTALL_STATUS=${PIPESTATUS[0]}
+  if [ "$PIP_UPGRADE_STATUS" -ne 0 ] || [ "$PIP_INSTALL_STATUS" -ne 0 ]; then
     echo
     echo "依赖安装失败。请检查网络，或手动执行："
+    if [ -f "$LOG_FILE" ] && grep -q "CERTIFICATE_VERIFY_FAILED" "$LOG_FILE"; then
+      echo
+      echo "检测到 macOS Python 证书错误：CERTIFICATE_VERIFY_FAILED"
+      echo "优先修复方式："
+      echo "1. 打开 Finder"
+      echo "2. 进入 /Applications/Python 3.12/"
+      echo "3. 双击 Install Certificates.command"
+      echo "4. 重新运行 ./start_mac.command"
+      echo
+      echo "如果暂时只想绕过证书问题，也可以手动执行："
+      echo "python3 -m pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org --upgrade pip"
+      echo "python3 -m pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -e \".[dev]\""
+      echo
+    fi
     echo "cd \"$(pwd)\""
     echo "python3 -m pip install --upgrade pip"
     echo "python3 -m pip install -e \".[dev]\""
