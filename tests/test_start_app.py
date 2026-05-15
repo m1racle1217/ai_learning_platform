@@ -1,15 +1,23 @@
-import sys
 from pathlib import Path
 
 from scripts import start_app
 
 
-def test_start_app_prepares_project_import_path(monkeypatch):
-    project_root = Path(__file__).resolve().parents[1]
-    scripts_dir = project_root / "scripts"
-    monkeypatch.chdir(scripts_dir)
-    monkeypatch.setattr(sys, "path", [str(scripts_dir)])
+def test_windows_launcher_uses_quiet_pythonw_helper():
+    launcher = Path("start_windows.bat").read_text(encoding="utf-8").lower()
+    helper = Path("scripts/start_windows_hidden.vbs").read_text(encoding="utf-8").lower()
 
-    start_app.prepare_project_imports()
+    assert "wscript" in launcher
+    assert "pause" not in launcher
+    assert "pythonw" in helper
+    assert "pyw" in helper
+    assert "shell.run command, 0, false" in helper
 
-    assert str(project_root) in sys.path
+
+def test_start_app_sets_quiet_uvicorn_defaults():
+    config = start_app.build_uvicorn_config("127.0.0.1", 8010)
+
+    assert config["host"] == "127.0.0.1"
+    assert config["port"] == 8010
+    assert config["log_level"] == "warning"
+    assert config["access_log"] is False

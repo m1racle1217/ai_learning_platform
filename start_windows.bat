@@ -1,5 +1,4 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-python scripts\start_app.py
-pause
+wscript //nologo scripts\start_windows_hidden.vbs

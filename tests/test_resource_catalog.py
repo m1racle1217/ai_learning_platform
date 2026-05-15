@@ -6,6 +6,7 @@ from app.services.resource_catalog import (
     dedupe_resources,
     ensure_resource_catalog,
     generate_day_resource_specs,
+    sort_resources_for_learning_path,
 )
 
 
@@ -72,3 +73,35 @@ def test_ensure_resource_catalog_adds_dense_daily_resources():
 
     assert len(resources) >= 10
     assert len([item for item in resources if item.resource_type == "video"]) >= 5
+
+
+def test_sort_resources_follows_learning_day_before_type_and_title():
+    module = Module(id=1, name="学习路线", sort_order=1, description="")
+    day_1 = make_day(1, "学习仓库与基础环境")
+    day_1.id = 101
+    day_1.module = module
+    day_1.module_id = module.id
+    day_15 = make_day(15, "MCP SDK 搭建")
+    day_15.id = 115
+    day_15.module = module
+    day_15.module_id = module.id
+    day_29 = make_day(29, "RAG 向量库搭建")
+    day_29.id = 129
+    day_29.module = module
+    day_29.module_id = module.id
+
+    resources = [
+        Resource(title="MCP 视频", url="https://example.com/mcp", resource_type="video", day_id=day_15.id, day=day_15),
+        Resource(title="RAG 文档", url="https://example.com/rag", resource_type="doc", day_id=day_29.id, day=day_29),
+        Resource(title="基础环境 工具", url="https://example.com/env", resource_type="tool", day_id=day_1.id, day=day_1),
+        Resource(title="基础环境 视频", url="https://example.com/env-video", resource_type="video", day_id=day_1.id, day=day_1),
+    ]
+
+    sorted_resources = sort_resources_for_learning_path(resources)
+
+    assert [resource.title for resource in sorted_resources] == [
+        "基础环境 视频",
+        "基础环境 工具",
+        "MCP 视频",
+        "RAG 文档",
+    ]

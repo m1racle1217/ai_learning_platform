@@ -43,5 +43,17 @@
     <main class="main" id="main">
       {% block content %}{% endblock %}
     </main>
+    <script>
+      (() => {
+        const sendHeartbeat = () => {
+          if (document.visibilityState !== "visible") return;
+          fetch("/runtime/heartbeat", { method: "POST", keepalive: true }).catch(() => {});
+        };
+        sendHeartbeat();
+        window.addEventListener("focus", sendHeartbeat);
+        document.addEventListener("visibilitychange", sendHeartbeat);
+        window.setInterval(sendHeartbeat, 5000);
+      })();
+    </script>
   </body>
 </html>

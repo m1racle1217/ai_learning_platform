@@ -3,6 +3,7 @@ import sys
 import threading
 import time
 import webbrowser
+from collections.abc import Callable
 from pathlib import Path
 
 import uvicorn
@@ -34,14 +35,42 @@ def open_browser_later(url: str) -> None:
     webbrowser.open(url)
 
 
+def build_uvicorn_config(host: str, port: int) -> dict:
+    return {
+        "host": host,
+        "port": port,
+        "log_level": "warning",
+        "access_log": False,
+    }
+
+
+def start_shutdown_watcher(should_shutdown: Callable[[], bool], poll_seconds: float = 3.0) -> None:
+    def watch() -> None:
+        while True:
+            time.sleep(poll_seconds)
+            if should_shutdown():
+                # Raising SystemExit from this daemon thread is not reliable; os._exit is
+                # deliberate here because this helper owns the local-only learning server.
+                import os
+
+                os._exit(0)
+
+    threading.Thread(target=watch, daemon=True).start()
+
+
 def main() -> None:
     prepare_project_imports()
+    from app.services.runtime_lifecycle import configure_auto_shutdown
+
     host = "127.0.0.1"
     port = find_free_port()
     url = f"http://{host}:{port}/"
-    print(f"AI Learning Platform: {url}")
+    shutdown_state = configure_auto_shutdown()
+    start_shutdown_watcher(shutdown_state.should_shutdown)
+    if sys.stdout and sys.stdout.isatty():
+        print(f"AI Learning Platform: {url}")
     threading.Thread(target=open_browser_later, args=(url,), daemon=True).start()
-    uvicorn.run("app.main:app", host=host, port=port)
+    uvicorn.run("app.main:app", **build_uvicorn_config(host, port))
 
 
 if __name__ == "__main__":

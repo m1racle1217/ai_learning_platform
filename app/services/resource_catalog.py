@@ -5,6 +5,13 @@ from sqlalchemy.orm import Session
 
 from app.models import LearningDay, Resource
 
+RESOURCE_TYPE_ORDER = {
+    "video": 0,
+    "doc": 1,
+    "github": 2,
+    "tool": 3,
+}
+
 
 def dedupe_resources(resources: list[Resource]) -> list[Resource]:
     seen: set[str] = set()
@@ -16,6 +23,15 @@ def dedupe_resources(resources: list[Resource]) -> list[Resource]:
         seen.add(key)
         unique.append(resource)
     return unique
+
+
+def sort_resources_for_learning_path(resources: list[Resource]) -> list[Resource]:
+    def sort_key(resource: Resource) -> tuple[int, int, str, str]:
+        day_number = resource.day.day_number if getattr(resource, "day", None) else 9999
+        type_order = RESOURCE_TYPE_ORDER.get(resource.resource_type.lower(), 99)
+        return (day_number, type_order, resource.title.lower(), resource.url.lower())
+
+    return sorted(resources, key=sort_key)
 
 
 def generate_day_resource_specs(day: LearningDay) -> list[dict[str, str]]:

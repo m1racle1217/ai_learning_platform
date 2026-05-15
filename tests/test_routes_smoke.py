@@ -33,3 +33,16 @@ def test_quiz_page_loads_for_day_one():
 
     assert response.status_code == 200
     assert "随堂小测" in response.text
+
+
+def test_runtime_heartbeat_endpoint_updates_lifecycle():
+    from app.services.runtime_lifecycle import configure_auto_shutdown
+
+    lifecycle = configure_auto_shutdown(idle_seconds=30)
+    client = TestClient(app)
+
+    response = client.post("/runtime/heartbeat")
+
+    assert response.status_code == 200
+    assert response.json() == {"ok": True}
+    assert lifecycle.last_heartbeat_at is not None

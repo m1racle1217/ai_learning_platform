@@ -68,6 +68,8 @@ class Resource(Base):
     resource_type: Mapped[str] = mapped_column(String(50), nullable=False)
     notes: Mapped[str | None] = mapped_column(Text)
 
+    day: Mapped[LearningDay | None] = relationship()
+
 
 class ResourceProgress(Base):
     __tablename__ = "resource_progress"
