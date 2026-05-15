@@ -21,3 +21,18 @@ def test_start_app_sets_quiet_uvicorn_defaults():
     assert config["port"] == 8010
     assert config["log_level"] == "warning"
     assert config["access_log"] is False
+
+
+def test_mac_launcher_keeps_diagnostics_visible():
+    launcher = Path("start_mac.command").read_text(encoding="utf-8")
+
+    assert "set -u" in launcher
+    assert "AI Learning Platform" in launcher
+    assert "python.org/downloads/macos" in launcher
+    assert "brew install python@3.11" in launcher
+    assert "python3 -m pip install --upgrade pip" in launcher
+    assert 'pip install -e ".[dev]"' in launcher.replace('\\"', '"')
+    assert "import fastapi, uvicorn, sqlalchemy, openpyxl" in launcher
+    assert "tail -n" in launcher
+    assert "nohup" not in launcher
+    assert "read -r" in launcher

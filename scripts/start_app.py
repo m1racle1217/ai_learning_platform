@@ -44,6 +44,11 @@ def build_uvicorn_config(host: str, port: int) -> dict:
     }
 
 
+def build_app_url(host: str = "127.0.0.1", start_port: int = 8001) -> tuple[str, int]:
+    port = find_free_port(start_port)
+    return f"http://{host}:{port}/", port
+
+
 def start_shutdown_watcher(should_shutdown: Callable[[], bool], poll_seconds: float = 3.0) -> None:
     def watch() -> None:
         while True:
@@ -63,8 +68,10 @@ def main() -> None:
     from app.services.runtime_lifecycle import configure_auto_shutdown
 
     host = "127.0.0.1"
-    port = find_free_port()
-    url = f"http://{host}:{port}/"
+    url, port = build_app_url(host)
+    if "--print-url" in sys.argv:
+        print(url)
+        return
     shutdown_state = configure_auto_shutdown()
     start_shutdown_watcher(shutdown_state.should_shutdown)
     if sys.stdout and sys.stdout.isatty():
