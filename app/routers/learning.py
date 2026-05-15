@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_session
 from app.models import LearningDay, Module, Resource, ResourceProgress
+from app.services.resource_catalog import dedupe_resources
 from app.services.user_data import log_user_event
 
 router = APIRouter()
@@ -25,7 +26,7 @@ def day_detail(day_number: int, request: Request, session: Session = Depends(get
     day = session.scalar(select(LearningDay).where(LearningDay.day_number == day_number))
     if not day:
         raise HTTPException(status_code=404, detail="Day not found")
-    resources = session.scalars(select(Resource).where(Resource.day_id == day.id)).all()
+    resources = dedupe_resources(session.scalars(select(Resource).where(Resource.day_id == day.id)).all())
     progress_rows = session.scalars(
         select(ResourceProgress).where(ResourceProgress.resource_id.in_([resource.id for resource in resources]))
     ).all() if resources else []

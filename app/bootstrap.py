@@ -24,3 +24,9 @@ def ensure_database_seeded() -> None:
         db_path.parent.mkdir(parents=True, exist_ok=True)
         create_schema()
         seed_from_workbook(workbook_path)
+    else:
+        from app.database import SessionLocal
+        from app.services.resource_catalog import ensure_resource_catalog
+
+        with SessionLocal() as session:
+            ensure_resource_catalog(session)

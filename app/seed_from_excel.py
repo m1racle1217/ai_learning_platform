@@ -10,6 +10,7 @@ from sqlalchemy import select
 from app.config import SOURCE_WORKBOOK, resolve_project_path
 from app.database import SessionLocal, engine
 from app.models import Base, Chapter, LearningDay, Module, QuizQuestion, Resource
+from app.services.resource_catalog import ensure_resource_catalog
 
 URL_RE = re.compile(r"(https?://[^\s）)]+)")
 
@@ -214,6 +215,7 @@ def seed_from_workbook(workbook_path: Path) -> None:
                 )
 
         seed_quiz_questions(session)
+        ensure_resource_catalog(session)
         session.commit()
 
 
