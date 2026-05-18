@@ -8,7 +8,7 @@
   </div>
   <form class="status-form" method="post" action="/days/{{ day.day_number }}/status">
     <label for="status">学习状态</label>
-    <select id="status" name="status">
+    <select id="status" name="status" data-status-select>
       {% for status in ["未开始", "学习中", "已完成", "需要复盘"] %}
         <option value="{{ status }}" {% if day.status == status %}selected{% endif %}>{{ status }}</option>
       {% endfor %}
@@ -26,7 +26,7 @@
         <h2>今日目标</h2>
       </div>
       {% set status_percent = {"未开始": 0, "学习中": 45, "需要复盘": 70, "已完成": 100}.get(day.status, 0) %}
-      <div class="status-progress status-{{ day.status }}" style="--status-progress: {{ status_percent }}%;">
+      <div class="status-progress status-{{ day.status }}" style="--status-progress: {{ status_percent }}%;" data-status-ring>
         <span>{{ day.status }}</span>
         <strong>{{ status_percent }}%</strong>
         <i aria-hidden="true"></i>
@@ -114,6 +114,9 @@
 <script>
   const progressLabel = document.querySelector("[data-resource-progress]");
   const resourceChecks = Array.from(document.querySelectorAll("[data-resource-check]"));
+  const statusRing = document.querySelector("[data-status-ring]");
+  const statusSelect = document.querySelector("[data-status-select]");
+  const STATUS_PERCENT = {"未开始": 0, "学习中": 45, "需要复盘": 70, "已完成": 100};
 
   function updateResourceProgressLabel() {
     if (!progressLabel) return;
@@ -123,16 +126,28 @@
     progressLabel.textContent = `${done} / ${total} · ${percent}%`;
   }
 
+  function updateStatusRing(status) {
+    if (!statusRing) return;
+    const percent = STATUS_PERCENT[status] ?? 0;
+    statusRing.className = `status-progress status-${status}`;
+    statusRing.style.setProperty("--status-progress", `${percent}%`);
+    statusRing.querySelector("span").textContent = status;
+    statusRing.querySelector("strong").textContent = `${percent}%`;
+    if (statusSelect) statusSelect.value = status;
+  }
+
   resourceChecks.forEach((checkbox) => {
     checkbox.addEventListener("change", async () => {
       checkbox.closest(".resource-check-card")?.classList.toggle("is-done", checkbox.checked);
       updateResourceProgressLabel();
       const formData = new FormData();
       formData.append("completed", checkbox.checked ? "1" : "0");
-      await fetch(`/resources/${checkbox.dataset.resourceId}/progress`, {
+      const res = await fetch(`/resources/${checkbox.dataset.resourceId}/progress`, {
         method: "POST",
         body: formData,
       });
+      const data = await res.json();
+      if (data.day_status) updateStatusRing(data.day_status);
     });
   });
 </script>

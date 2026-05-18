@@ -63,6 +63,35 @@ def update_resource_progress(
         session.add(row)
     else:
         row.completed = 1 if completed else 0
+
+    new_day_status = None
+    if resource.day_id:
+        day = session.get(LearningDay, resource.day_id)
+        if day:
+            day_resources = session.scalars(
+                select(Resource).where(Resource.day_id == resource.day_id)
+            ).all()
+            total = len(day_resources)
+            if total > 0:
+                progress_rows = session.scalars(
+                    select(ResourceProgress).where(
+                        ResourceProgress.resource_id.in_([r.id for r in day_resources])
+                    )
+                ).all()
+                progress_map = {r.resource_id: r.completed for r in progress_rows}
+                progress_map[resource_id] = 1 if completed else 0
+                done = sum(1 for v in progress_map.values() if v)
+                if done == total:
+                    new_day_status = "已完成"
+                elif done > 0 and day.status == "未开始":
+                    new_day_status = "学习中"
+                elif done == 0 and day.status in ("学习中", "已完成"):
+                    new_day_status = "未开始"
+                elif done < total and day.status == "已完成":
+                    new_day_status = "学习中"
+                if new_day_status:
+                    day.status = new_day_status
+
     log_user_event(
         session,
         "resource_progress",
@@ -71,7 +100,7 @@ def update_resource_progress(
         {"completed": bool(row.completed), "day_id": resource.day_id, "module_id": resource.module_id},
     )
     session.commit()
-    return {"ok": True, "completed": bool(row.completed)}
+    return {"ok": True, "completed": bool(row.completed), "day_status": new_day_status}
 
 
 @router.post("/days/{day_number}/status")
